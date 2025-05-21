@@ -69,14 +69,11 @@ function saveResultsAndRedirect() {
 
 // Function to handle the next question
 function nextQuestion() {
-    // Increase the question index
     currentQuestionIndex++;
     if (currentQuestionIndex >= questions.length) {
-        // Game is over - save results and redirect
         saveResultsAndRedirect();
         return;
     }
-    // Reset powerups and timer
     isDoubleTimeActive = false;
     const question = questions[shuffledIndices[currentQuestionIndex]];
     document.getElementById('question-text').textContent = question.text;
@@ -95,22 +92,13 @@ function nextQuestion() {
         button.disabled = false;
         button.style.display = 'block';
         button.style.visibility = 'visible';
-        // Remove existing listeners before adding new ones
-        const handleClick = function () {
-            const isCorrect = index === questions[shuffledIndices[currentQuestionIndex]].correctAnswerIndex;
-            document.querySelectorAll('.answer-button').forEach(btn => {
-                btn.disabled = true;
-            });
-            showFeedback(isCorrect, questions[shuffledIndices[currentQuestionIndex]].correctAnswerIndex, index);
-        };
-            const selectedIndex = parseInt(button.getAttribute('data-index'), 10);
-            const isCorrect = selectedIndex === questions[shuffledIndices[currentQuestionIndex]].correctAnswerIndex;
-        button.addEventListener('click', handleClick);
-    });
-
-    // Re-add click listeners to new buttons
-    document.querySelectorAll('.answer-button').forEach((button, index) => {
-        button.addEventListener('click', function handleClick() {
+        
+        // Remove existing listeners by cloning the button
+        const newButton = button.cloneNode(true);
+        button.parentNode.replaceChild(newButton, button);
+        
+        // Add new click listener
+        newButton.addEventListener('click', () => {
             const isCorrect = index === questions[shuffledIndices[currentQuestionIndex]].correctAnswerIndex;
             document.querySelectorAll('.answer-button').forEach(btn => {
                 btn.disabled = true;
@@ -125,7 +113,6 @@ function nextQuestion() {
         const button = document.getElementById(`power-up-${i + 1}`);
         button.disabled = powerupsUsed[key];
     });
-
     startTimer();
 }
 
