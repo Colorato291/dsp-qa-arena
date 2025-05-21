@@ -9,9 +9,10 @@ let timerInterval;
 let powerupsUsed = { doubleTime: false, fiftyFifty: false, doublePoints: false };
 let shuffledIndices = [];
 let isDoubleTimeActive = false;
+let isDoublePointsActive = false;
 const answerOptions = ['a', 'b', 'c', 'd'];
 
-// load questions from JSON file
+// Load questions from JSON file
 fetch('./questions.json')
     .then(response => response.json())
     // Shuffle the questions
@@ -74,7 +75,9 @@ function nextQuestion() {
         saveResultsAndRedirect();
         return;
     }
+    // Reset powerup states for the new question
     isDoubleTimeActive = false;
+    isDoublePointsActive = false; // Reset double points for new question
     const question = questions[shuffledIndices[currentQuestionIndex]];
     document.getElementById('question-text').textContent = question.text;
     document.getElementById('feedback-container').style.display = 'none';
@@ -113,6 +116,7 @@ function nextQuestion() {
         const button = document.getElementById(`power-up-${i + 1}`);
         button.disabled = powerupsUsed[key];
     });
+
     startTimer();
 }
 
@@ -120,7 +124,7 @@ function showFeedback(isCorrect, correctAnswerIndex, selectedIndex) {
     clearInterval(timerInterval); // Stop the timer
     const question = questions[shuffledIndices[currentQuestionIndex]]; // Check if the answer was correct
     const points = isCorrect ? (isDoubleTimeActive ? 100 : Math.max(50, 100 - Math.floor((20 - timeLeft) * 2.5))) : 0; // Calculate points based on the answer and time left
-    userScore += powerupsUsed.doublePoints ? points * 2 : points; // Update scores
+    userScore += isDoublePointsActive ? points * 2 : points; // Use isDoublePointsActive instead of powerupsUsed.doublePoints
     opponentScore += Math.floor(Math.random() * (100 - 50 + 1)) + 50;
     totalQuestions++; // Update total questions answered
     // Update correct answers count
@@ -190,6 +194,7 @@ document.getElementById('power-up-2').addEventListener('click', () => {
 document.getElementById('power-up-3').addEventListener('click', () => {
     if (!powerupsUsed.doublePoints) {
         powerupsUsed.doublePoints = true;
+        isDoublePointsActive = true; // Activate double points for current question
         document.getElementById('power-up-3').disabled = true;
     }
 });
